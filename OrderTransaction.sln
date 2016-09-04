@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderTransaction", "OrderTransaction\OrderTransaction.csproj", "{69AF93F4-90AE-4A35-98FE-F78F82DCB78D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{84CEE558-0207-428B-B9C1-2E9E70502275}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69AF93F4-90AE-4A35-98FE-F78F82DCB78D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69AF93F4-90AE-4A35-98FE-F78F82DCB78D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69AF93F4-90AE-4A35-98FE-F78F82DCB78D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69AF93F4-90AE-4A35-98FE-F78F82DCB78D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84CEE558-0207-428B-B9C1-2E9E70502275}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84CEE558-0207-428B-B9C1-2E9E70502275}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84CEE558-0207-428B-B9C1-2E9E70502275}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84CEE558-0207-428B-B9C1-2E9E70502275}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
