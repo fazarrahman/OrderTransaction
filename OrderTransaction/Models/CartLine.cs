@@ -5,11 +5,12 @@ using System.Web;
 
 namespace OrderTransaction.Models
 {
-    public class Product : ModelBase
+    public class CartLine
     {
         public int ProductId { get; set; }
-        public string Name { get; set; }
-        public decimal Stock { get; set; }
+
         public decimal Price { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

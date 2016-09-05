@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+	<meta charset="utf-8" />
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="Scripts/jquery.cookie.js"></script>
+</head>
+<body>
+    <div id="errorMessage">
+    </div>
+    <div>
+        <h1>Cart</h1>
+        <div><label>Coupon : <select id="ddlCoupon"></select></label></div>
+        <ul id="orders" />
+    </div>
+    <div>Total without discount : <label id="lblTotalWithoutDiscount"></label></div>
+    <div>Discount : <label id="lblDiscount"></label></div>
+    <div>Grand Total : <label id="lblGrandTotal"></label></div>
+    <br />
+    <div>
+        <a href="#" id="btnUpdate">Save</a>
+        <a href="#" id="btnSubmit">Submit Order</a>
+    </div>
+    <div>
+        <a href="index.html">Return To Product List</a>
+    </div>
+    <script type="text/javascript">
+        var couponUri = 'api/coupon';
+        var discountType = 'D';
+        var discountAmt = 0;
+
+        $(document).ready(function () {
+            initializeDdlCoupon();
+            getCart();
+            $("#btnUpdate").click(function (e)
+            {
+                e.preventDefault(e);
+                updateCart();
+            });
+            $("#btnSubmit").click(function (e) {
+                e.preventDefault(e);
+                submitOrder();
+            });
+            $("#ddlCoupon").change(function () {
+                calculateDiscount();
+            });
+        });
+
+        function calculateDiscount() {
+            var couponId = $("#ddlCoupon").val();
+            if (couponId == 0)
+            {
+                discountAmt = 0;
+                calculateTotal();
+            }
+            else
+            {
+                $.getJSON(couponUri + '/' + couponId)
+                .done(function (coupon) {
+                    if (coupon.IsError) {
+                        displayError(coupon.Message);
+                    }
+                    else {
+                        discountAmt = coupon.Discount;
+                        discountType = coupon.DiscountType;
+                        calculateTotal();
+                    }
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                    displayError(err);
+                });
+            }
+
+            
+        }
+
+        function calculateTotal() {
+            var products = JSON.parse($.cookie('cart'));
+            var totalWithoutDiscount = 0;
+            var totalDiscount = 0;
+            var grandTotal = 0;
+            $.each(products, function (index, value) {
+                totalWithoutDiscount += (value.Price * value.Quantity);
+            });
+            if (totalWithoutDiscount == 0) {
+                totalDiscount = 0;
+                grandTotal = 0;
+            }
+            else {
+                if(discountAmt != 0) {
+                    totalDiscount = discountType == 'D' ? (totalWithoutDiscount * discountAmt / 100) : discountAmt;
+                }
+                grandTotal = totalWithoutDiscount - totalDiscount;
+                
+            }
+            $("#lblTotalWithoutDiscount").text(totalWithoutDiscount);
+            $("#lblDiscount").text(totalDiscount);
+            $("#lblGrandTotal").text(grandTotal);
+        }
+
+        function initializeDdlCoupon() {
+            $.getJSON(couponUri)
+                .done(function (data) {
+                    var options = $("#ddlCoupon");
+                    options.append($("<option />").val(0).text("-- Select One --"));
+                    $.each(data, function() {
+                        options.append($("<option />").val(this.CouponId).text(this.Name));
+                });
+            });
+        }
+
+        function getCart()
+        {
+            $("#orders").html('');
+            var products = JSON.parse($.cookie('cart'));
+            $.each(products, function (index, value) {
+                var deleteLink = $('<a href="#" id="' + value.ProductId + '">X</a>')
+                    .click(function (e) {
+                        e.preventDefault(); deleteProduct(value.ProductId);
+                    });
+                var amount = value.Price * value.Quantity;
+                var orderList = $('<li id="name' + value.ProductId + '">' + value.Name + ', Rp. ' + value.Price + ', Stock : ' + value.Stock +
+                    ', <label>Order Quantity : <input type="text" id="quantity' + value.ProductId + '" value="' + value.Quantity + '" length="5" /></label> Amount : ' + amount + '</li>').append(deleteLink);
+                $("#orders").append(orderList);
+            });
+
+            calculateTotal();
+        }
+
+        function deleteProduct(productId)
+        {
+            var newProducts = [];
+            var products = JSON.parse($.cookie('cart'));
+            $.each(products, function (index, value) {
+                if(productId != value.ProductId) {
+                    newProducts.push(value);
+                }
+            });
+
+            $.cookie('cart', JSON.stringify(newProducts));
+            getCart();
+        }
+
+        function displayError(msg) {
+            $("#errorMessage").html('<p>' + msg + '</p>');
+        }
+
+        function updateCart() {
+            var products = JSON.parse($.cookie('cart'));
+            var isError = false;
+            var itemCount = 0;
+            $.each(products, function (index, value) {
+                var qty = $("#quantity" + value.ProductId).val();
+                if (qty > value.Stock) {
+                    displayError('Stock tidak mencukupi, penyimpanan data gagal');
+                    isError = true;
+                }
+                itemCount++;
+            });
+
+            if (itemCount == 0)
+            {
+                displayError('Mohon untuk kembali memilih product yang akan dibeli.');
+                isError = true;
+            }
+
+            if (!isError)
+            {
+                $.each(products, function (index, value) {
+                    value.Quantity = $("#quantity" + value.ProductId).val();
+                    value.CouponId = $("#ddlCoupon").val();
+                });
+
+                $.cookie('cart', JSON.stringify(products));
+                getCart();
+
+                displayError('');
+            }
+        }
+
+        function submitOrder() {
+            updateCart();
+
+            location.href = "SubmitOrder.html"
+        }
+    </script>
+</body>
+</html>

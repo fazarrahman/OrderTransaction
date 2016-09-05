@@ -1,44 +1,92 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Product App</title>
+    <title>Product List</title>
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="Scripts/jquery.cookie.js"></script>
 </head>
 <body>
-
+    <div id="errorMessage">
+    </div>
     <div>
         <h2>All Products</h2>
         <ul id="products" />
     </div>
-
-    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
-    <script>
+    <script type="text/javascript">
     var uri = 'api/product';
 
     $(document).ready(function () {
-      // Send an AJAX request
-      $.getJSON(uri)
-          .done(function (data) {
-            // On success, 'data' contains a list of products.
-            $.each(data, function (key, item) {
-              // Add a list item for the product.
-              $('<li>', { text: formatItem(item) }).appendTo($('#products'));
-            });
-          });
+        getAllProduct();
     });
 
-    function formatItem(item) {
-      return item.Name + ': $' + item.Price + ', Quantity : '+ item.Quantity;
+    function getAllProduct()
+    {
+        $.getJSON(uri)
+          .done(function (data) {
+              // On success, 'data' contains a list of products.
+              $.each(data, function (key, item) {
+                  // Add a list item for the product.
+                  var itemUri = uri + '/' + item.ProductId;
+                  var itemLink = $('<li><a href="#">' + item.Name + '</a></li>').click(function (e) { e.preventDefault(e); addToCart(item) });
+                  $('#products').append(itemLink);
+                  $('#products').append(formatItem(item));
+              });
+        });
     }
 
-    function find() {
-      var id = $('#prodId').val();
-      $.getJSON(uri + '/' + id)
-          .done(function (data) {
-            $('#product').text(formatItem(data));
+    function formatItem(item) {
+      return 'Rp. ' + item.Price + ', Stock : '+ item.Stock;
+    }
+
+    function displayError(msg)
+    {
+        $("#errorMessage").html('<p>' + msg + '</p>');
+    }
+
+    function addToCart(item) {
+      $.getJSON(uri + '/' + item.ProductId)
+          .done(function (product) {
+              if (product.IsError)
+              {
+                  displayError(product.Message);
+              }
+              else
+              {
+                  addProductToCart(product);
+
+                  location.href = "cart.html";
+              }
           })
           .fail(function (jqXHR, textStatus, err) {
-            $('#product').text('Error: ' + err);
+              displayError(err);
           });
+    }
+
+    function addProductToCart(product) {
+        var cartLines = [];
+        if ($.cookie('cart') != undefined) {
+            cartLines = JSON.parse($.cookie('cart'));
+        }
+
+        if (cartLines.length == 0) {
+            cartLines = [{ ProductId: product.ProductId, Name: product.Name, Price: product.Price, Quantity: 1, Stock: product.Stock, CouponId: 0 }];
+        }
+        else {
+            var isExist = false;
+            $.each(cartLines, function (index, value) {
+                if(value.ProductId == product.ProductId)
+                {
+                    value.Quantity++;
+                    isExist = true;
+                }
+            });
+
+            if (!isExist)
+            {
+                cartLines.push({ ProductId: product.ProductId, Name: product.Name, Price: product.Price, Quantity: 1, Stock: product.Stock, CouponId: 0 });
+            }
+        }
+        $.cookie('cart', JSON.stringify(cartLines));
     }
     </script>
 </body>

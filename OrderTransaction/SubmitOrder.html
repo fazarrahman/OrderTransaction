@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Order</title>
+    <meta charset="utf-8" />
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="Scripts/jquery.cookie.js"></script>
+</head>
+<body>
+    <div id="errorMessage">
+    </div>
+    <div>
+        <h1>Submit Order</h1>
+        <div>Please fill required information : </div>
+        <br />
+        <div><label>Name : <input type="text" id="CustName" /></label></div>
+        <div><label>Phone Number : <input type="text" id="CustPhoneNumber" /></label></div>
+        <div><label>Email : <input type="text" id="CustEmail" /></label></div>
+        <div><label>Address : <textarea id="CustAddress" rows="4" cols="50"></textarea></label></div>
+        <div><input type="button" value="Submit" onclick="Submit()"></div>
+        <br />
+        <div>Please finish the payment by transfering to following bank account number : </div>
+        <div>BCA - 389523897</div>
+        <div>Account Name : PT Toko Jaya</div>
+    </div>
+    <script type="text/javascript">
+        function Submit() {
+            var customer = { Name: $("#CustName").val(), PhoneNumber: $("#CustPhoneNumber").val(), Email: $("#CustEmail").val(), Address: $("#CustAddress").val() };
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify(customer),
+                url: "api/Order",
+                contentType: "application/json"
+            });
+        }
+    </script>
+</body>
+</html>

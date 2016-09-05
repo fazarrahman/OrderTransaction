@@ -1,6 +1,9 @@
 ﻿using OrderTransaction.Models;
+using OrderTransaction.Repository.Abstract;
+using OrderTransaction.Repository.Concrete;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,24 +13,24 @@ namespace OrderTransaction.Controllers
 {
     public class ProductController : ApiController
     {
-        Product[] products = new Product[]
-        {
-            new Product { Id = 1, Name = "Tomato Soup", Category = "Groceries", Price = 1, Quantity = 0 },
-            new Product { Id = 2, Name = "Yo-yo", Category = "Toys", Price = 3.75M, Quantity = 0 },
-            new Product { Id = 3, Name = "Hammer", Category = "Hardware", Price = 16.99M, Quantity = 0 }
-        };
+        IProductRepository _productRepository;
 
         public IEnumerable<Product> GetAllProducts()
         {
+            _productRepository = new ProductRepository();
+            Collection<Product> products = _productRepository.GetAllProducts();
+
             return products;
         }
 
         public IHttpActionResult GetProduct(int id)
         {
-            var product = products.FirstOrDefault((p) => p.Id == id);
+            _productRepository = new ProductRepository();
+
+            var product = _productRepository.GetProductById(id);
             if (product == null)
             {
-                return NotFound();
+                product.SetMessage("Product tidak ditemukan");
             }
             return Ok(product);
         }
